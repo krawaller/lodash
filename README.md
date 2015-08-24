@@ -1,4 +1,4 @@
-# lodash v3.10.1
+# lodash v4.0.0-pre
 
 The [modern build](https://github.com/lodash/lodash/wiki/Build-Differences) of [lodash](https://lodash.com/) exported as [Node.js](http://nodejs.org/)/[io.js](https://iojs.org/) modules.
 
@@ -52,15 +52,15 @@ lodash is also available in a variety of other builds & module formats.
 
 ## Features
 
- * ~100% [code coverage](https://coveralls.io/r/lodash)
+ * ~100% [code coverage](https://coveralls.io/github/lodash)
  * Follows [semantic versioning](http://semver.org/) for releases
  * [Lazily evaluated](http://filimanjaro.com/blog/2014/introducing-lazy-evaluation/) chaining
  * [_(…)](https://lodash.com/docs#_) supports implicit chaining
  * [_.ary](https://lodash.com/docs#ary) & [_.rearg](https://lodash.com/docs#rearg) to change function argument limits & order
  * [_.at](https://lodash.com/docs#at) for cherry-picking collection values
- * [_.attempt](https://lodash.com/docs#attempt) to execute functions which may error without a try-catch
+ * [_.attempt](https://lodash.com/docs#attempt) to execute functions which may error
  * [_.before](https://lodash.com/docs#before) to complement [_.after](https://lodash.com/docs#after)
- * [_.bindKey](https://lodash.com/docs#bindKey) for binding [*“lazy”*](http://michaux.ca/articles/lazy-function-definition-pattern) defined methods
+ * [_.bindKey](https://lodash.com/docs#bindKey) for binding [*“lazy”*](http://peter.michaux.ca/articles/lazy-function-definition-pattern) defined methods
  * [_.chunk](https://lodash.com/docs#chunk) for splitting an array into chunks of a given size
  * [_.clone](https://lodash.com/docs#clone) supports shallow cloning of `Date` & `RegExp` objects
  * [_.cloneDeep](https://lodash.com/docs#cloneDeep) for deep cloning arrays & objects
@@ -117,5 +117,5 @@ lodash is also available in a variety of other builds & module formats.
 
 ## Support
 
-Tested in Chrome 43-44, Firefox 38-39, IE 6-11, MS Edge, Safari 5-8, ChakraNode 0.12.2, io.js 2.5.0, Node.js 0.8.28, 0.10.40, & 0.12.7, PhantomJS 1.9.8, RingoJS 0.11, & Rhino 1.7.6.
+Tested in Chrome 45-46, Firefox 40-41, IE 6-11, MS Edge, Safari 8-9, ChakraNode 0.12.2, Node.js 0.8.28, 0.10.40, 0.12.7, 4.2.2, & 5.0.0, & PhantomJS 1.9.8.
 Automated [browser](https://saucelabs.com/u/lodash) & [CI](https://travis-ci.org/lodash/lodash/) test runs are available. Special thanks to [Sauce Labs](https://saucelabs.com/) for providing automated browser testing.

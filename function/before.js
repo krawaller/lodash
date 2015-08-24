@@ -1,3 +1,5 @@
+var toInteger = require('../lang/toInteger');
+
 /** Used as the `TypeError` message for "Functions" methods. */
 var FUNC_ERROR_TEXT = 'Expected a function';
 
@@ -14,20 +16,15 @@ var FUNC_ERROR_TEXT = 'Expected a function';
  * @returns {Function} Returns the new restricted function.
  * @example
  *
- * jQuery('#add').on('click', _.before(5, addContactToList));
+ * jQuery(element).on('click', _.before(5, addContactToList));
  * // => allows adding up to 4 contacts to the list
  */
 function before(n, func) {
   var result;
   if (typeof func != 'function') {
-    if (typeof n == 'function') {
-      var temp = n;
-      n = func;
-      func = temp;
-    } else {
-      throw new TypeError(FUNC_ERROR_TEXT);
-    }
+    throw new TypeError(FUNC_ERROR_TEXT);
   }
+  n = toInteger(n);
   return function() {
     if (--n > 0) {
       result = func.apply(this, arguments);

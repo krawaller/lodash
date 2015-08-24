@@ -1,6 +1,6 @@
 var createWrapper = require('../internal/createWrapper'),
     replaceHolders = require('../internal/replaceHolders'),
-    restParam = require('./restParam');
+    rest = require('./rest');
 
 /** Used to compose bitmasks for wrapper metadata. */
 var BIND_FLAG = 1,
@@ -22,7 +22,7 @@ var BIND_FLAG = 1,
  * @static
  * @memberOf _
  * @category Function
- * @param {Object} object The object the method belongs to.
+ * @param {Object} object The object to invoke the method on.
  * @param {string} key The key of the method.
  * @param {...*} [partials] The arguments to be partially applied.
  * @returns {Function} Returns the new bound function.
@@ -51,7 +51,7 @@ var BIND_FLAG = 1,
  * bound('hi');
  * // => 'hiya fred!'
  */
-var bindKey = restParam(function(object, key, partials) {
+var bindKey = rest(function(object, key, partials) {
   var bitmask = BIND_FLAG | BIND_KEY_FLAG;
   if (partials.length) {
     var holders = replaceHolders(partials, bindKey.placeholder);
@@ -59,8 +59,5 @@ var bindKey = restParam(function(object, key, partials) {
   }
   return createWrapper(key, bitmask, object, partials, holders);
 });
-
-// Assign default placeholders.
-bindKey.placeholder = {};
 
 module.exports = bindKey;
