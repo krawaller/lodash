@@ -1,21 +1,28 @@
 import baseRandom from '../internal/baseRandom';
 import isIterateeCall from '../internal/isIterateeCall';
+import toNumber from '../lang/toNumber';
 
-/* Native method references for those with the same name as other `lodash` methods. */
+/** Built-in method references without a dependency on `root`. */
+var freeParseFloat = parseFloat;
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
 var nativeMin = Math.min,
     nativeRandom = Math.random;
 
 /**
- * Produces a random number between `min` and `max` (inclusive). If only one
- * argument is provided a number between `0` and the given number is returned.
- * If `floating` is `true`, or either `min` or `max` are floats, a floating-point
- * number is returned instead of an integer.
+ * Produces a random number between the inclusive `lower` and `upper` bounds.
+ * If only one argument is provided a number between `0` and the given number
+ * is returned. If `floating` is `true`, or either `lower` or `upper` are floats,
+ * a floating-point number is returned instead of an integer.
+ *
+ * **Note:** JavaScript follows the IEEE-754 standard for resolving
+ * floating-point values which can produce unexpected results.
  *
  * @static
  * @memberOf _
  * @category Number
- * @param {number} [min=0] The minimum possible value.
- * @param {number} [max=1] The maximum possible value.
+ * @param {number} [lower=0] The lower bound.
+ * @param {number} [upper=1] The upper bound.
  * @param {boolean} [floating] Specify returning a floating-point number.
  * @returns {number} Returns the random number.
  * @example
@@ -32,39 +39,43 @@ var nativeMin = Math.min,
  * _.random(1.2, 5.2);
  * // => a floating-point number between 1.2 and 5.2
  */
-function random(min, max, floating) {
-  if (floating && isIterateeCall(min, max, floating)) {
-    max = floating = undefined;
+function random(lower, upper, floating) {
+  if (floating && typeof floating != 'boolean' && isIterateeCall(lower, upper, floating)) {
+    upper = floating = undefined;
   }
-  var noMin = min == null,
-      noMax = max == null;
-
-  if (floating == null) {
-    if (noMax && typeof min == 'boolean') {
-      floating = min;
-      min = 1;
+  if (floating === undefined) {
+    if (typeof upper == 'boolean') {
+      floating = upper;
+      upper = undefined;
     }
-    else if (typeof max == 'boolean') {
-      floating = max;
-      noMax = true;
+    else if (typeof lower == 'boolean') {
+      floating = lower;
+      lower = undefined;
     }
   }
-  if (noMin && noMax) {
-    max = 1;
-    noMax = false;
+  if (lower === undefined && upper === undefined) {
+    lower = 0;
+    upper = 1;
   }
-  min = +min || 0;
-  if (noMax) {
-    max = min;
-    min = 0;
-  } else {
-    max = +max || 0;
+  else {
+    lower = toNumber(lower) || 0;
+    if (upper === undefined) {
+      upper = lower;
+      lower = 0;
+    } else {
+      upper = toNumber(upper) || 0;
+    }
   }
-  if (floating || min % 1 || max % 1) {
+  if (lower > upper) {
+    var temp = lower;
+    lower = upper;
+    upper = temp;
+  }
+  if (floating || lower % 1 || upper % 1) {
     var rand = nativeRandom();
-    return nativeMin(min + (rand * (max - min + parseFloat('1e-' + ((rand + '').length - 1)))), max);
+    return nativeMin(lower + (rand * (upper - lower + freeParseFloat('1e-' + ((rand + '').length - 1)))), upper);
   }
-  return baseRandom(min, max);
+  return baseRandom(lower, upper);
 }
 
 export default random;

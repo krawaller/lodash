@@ -1,20 +1,22 @@
 import isObject from '../lang/isObject';
 import now from '../date/now';
+import toNumber from '../lang/toNumber';
 
 /** Used as the `TypeError` message for "Functions" methods. */
 var FUNC_ERROR_TEXT = 'Expected a function';
 
-/* Native method references for those with the same name as other `lodash` methods. */
+/* Built-in method references for those with the same name as other `lodash` methods. */
 var nativeMax = Math.max;
 
 /**
  * Creates a debounced function that delays invoking `func` until after `wait`
  * milliseconds have elapsed since the last time the debounced function was
  * invoked. The debounced function comes with a `cancel` method to cancel
- * delayed invocations. Provide an options object to indicate that `func`
- * should be invoked on the leading and/or trailing edge of the `wait` timeout.
- * Subsequent calls to the debounced function return the result of the last
- * `func` invocation.
+ * delayed `func` invocations and a `flush` method to immediately invoke them.
+ * Provide an options object to indicate whether `func` should be invoked on
+ * the leading and/or trailing edge of the `wait` timeout. The `func` is invoked
+ * with the last arguments provided to the debounced function. Subsequent calls
+ * to the debounced function return the result of the last `func` invocation.
  *
  * **Note:** If `leading` and `trailing` options are `true`, `func` is invoked
  * on the trailing edge of the timeout only if the the debounced function is
@@ -41,34 +43,19 @@ var nativeMax = Math.max;
  * // avoid costly calculations while the window size is in flux
  * jQuery(window).on('resize', _.debounce(calculateLayout, 150));
  *
- * // invoke `sendMail` when the click event is fired, debouncing subsequent calls
- * jQuery('#postbox').on('click', _.debounce(sendMail, 300, {
+ * // invoke `sendMail` when clicked, debouncing subsequent calls
+ * jQuery(element).on('click', _.debounce(sendMail, 300, {
  *   'leading': true,
  *   'trailing': false
  * }));
  *
  * // ensure `batchLog` is invoked once after 1 second of debounced calls
+ * var debounced = _.debounce(batchLog, 250, { 'maxWait': 1000 });
  * var source = new EventSource('/stream');
- * jQuery(source).on('message', _.debounce(batchLog, 250, {
- *   'maxWait': 1000
- * }));
+ * jQuery(source).on('message', debounced);
  *
- * // cancel a debounced call
- * var todoChanges = _.debounce(batchLog, 1000);
- * Object.observe(models.todo, todoChanges);
- *
- * Object.observe(models, function(changes) {
- *   if (_.find(changes, { 'user': 'todo', 'type': 'delete'})) {
- *     todoChanges.cancel();
- *   }
- * }, ['delete']);
- *
- * // ...at some point `models.todo` is changed
- * models.todo.completed = true;
- *
- * // ...before 1 second has passed `models.todo` is deleted
- * // which cancels the debounced `todoChanges` call
- * delete models.todo;
+ * // cancel a trailing debounced invocation
+ * jQuery(window).on('popstate', debounced.cancel);
  */
 function debounce(func, wait, options) {
   var args,
@@ -79,19 +66,17 @@ function debounce(func, wait, options) {
       timeoutId,
       trailingCall,
       lastCalled = 0,
+      leading = false,
       maxWait = false,
       trailing = true;
 
   if (typeof func != 'function') {
     throw new TypeError(FUNC_ERROR_TEXT);
   }
-  wait = wait < 0 ? 0 : (+wait || 0);
-  if (options === true) {
-    var leading = true;
-    trailing = false;
-  } else if (isObject(options)) {
+  wait = toNumber(wait) || 0;
+  if (isObject(options)) {
     leading = !!options.leading;
-    maxWait = 'maxWait' in options && nativeMax(+options.maxWait || 0, wait);
+    maxWait = 'maxWait' in options && nativeMax(toNumber(options.maxWait) || 0, wait);
     trailing = 'trailing' in options ? !!options.trailing : trailing;
   }
 
@@ -103,7 +88,7 @@ function debounce(func, wait, options) {
       clearTimeout(maxTimeoutId);
     }
     lastCalled = 0;
-    maxTimeoutId = timeoutId = trailingCall = undefined;
+    args = maxTimeoutId = thisArg = timeoutId = trailingCall = undefined;
   }
 
   function complete(isCalled, id) {
@@ -127,6 +112,14 @@ function debounce(func, wait, options) {
     } else {
       timeoutId = setTimeout(delayed, remaining);
     }
+  }
+
+  function flush() {
+    if ((timeoutId && trailingCall) || (maxTimeoutId && trailing)) {
+      result = func.apply(thisArg, args);
+    }
+    cancel();
+    return result;
   }
 
   function maxDelayed() {
@@ -175,6 +168,7 @@ function debounce(func, wait, options) {
     return result;
   }
   debounced.cancel = cancel;
+  debounced.flush = flush;
   return debounced;
 }
 

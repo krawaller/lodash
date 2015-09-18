@@ -1,16 +1,16 @@
-import isObjectLike from '../internal/isObjectLike';
+import isObjectLike from './isObjectLike';
 
 /** `Object#toString` result references. */
 var dateTag = '[object Date]';
 
-/** Used for native method references. */
+/** Used for built-in method references. */
 var objectProto = Object.prototype;
 
 /**
  * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
  * of values.
  */
-var objToString = objectProto.toString;
+var objectToString = objectProto.toString;
 
 /**
  * Checks if `value` is classified as a `Date` object.
@@ -29,7 +29,7 @@ var objToString = objectProto.toString;
  * // => false
  */
 function isDate(value) {
-  return isObjectLike(value) && objToString.call(value) == dateTag;
+  return isObjectLike(value) && objectToString.call(value) == dateTag;
 }
 
 export default isDate;
