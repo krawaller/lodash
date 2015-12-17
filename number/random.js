@@ -1,17 +1,20 @@
-define(['../internal/baseRandom', '../internal/isIterateeCall'], function(baseRandom, isIterateeCall) {
+define(['../internal/baseRandom', '../internal/isIterateeCall', '../lang/toNumber'], function(baseRandom, isIterateeCall, toNumber) {
 
   /** Used as a safe reference for `undefined` in pre-ES5 environments. */
   var undefined;
 
-  /* Native method references for those with the same name as other `lodash` methods. */
+  /* Built-in method references for those with the same name as other `lodash` methods. */
   var nativeMin = Math.min,
       nativeRandom = Math.random;
 
   /**
    * Produces a random number between `min` and `max` (inclusive). If only one
    * argument is provided a number between `0` and the given number is returned.
-   * If `floating` is `true`, or either `min` or `max` are floats, a floating-point
-   * number is returned instead of an integer.
+   * If `floating` is `true`, or either `min` or `max` are floats, a
+   * floating-point number is returned instead of an integer.
+   *
+   * **Note:** JavaScript follows the IEEE-754 standard for resolving
+   * floating-point values which can produce unexpected results.
    *
    * @static
    * @memberOf _
@@ -35,32 +38,36 @@ define(['../internal/baseRandom', '../internal/isIterateeCall'], function(baseRa
    * // => a floating-point number between 1.2 and 5.2
    */
   function random(min, max, floating) {
-    if (floating && isIterateeCall(min, max, floating)) {
+    if (floating && typeof floating != 'boolean' && isIterateeCall(min, max, floating)) {
       max = floating = undefined;
     }
-    var noMin = min == null,
-        noMax = max == null;
-
-    if (floating == null) {
-      if (noMax && typeof min == 'boolean') {
-        floating = min;
-        min = 1;
-      }
-      else if (typeof max == 'boolean') {
+    if (floating === undefined) {
+      if (typeof max == 'boolean') {
         floating = max;
-        noMax = true;
+        max = undefined;
+      }
+      else if (typeof min == 'boolean') {
+        floating = min;
+        min = undefined;
       }
     }
-    if (noMin && noMax) {
-      max = 1;
-      noMax = false;
-    }
-    min = +min || 0;
-    if (noMax) {
-      max = min;
+    if (min === undefined && max === undefined) {
       min = 0;
-    } else {
-      max = +max || 0;
+      max = 1;
+    }
+    else {
+      min = toNumber(min) || 0;
+      if (max === undefined) {
+        max = min;
+        min = 0;
+      } else {
+        max = toNumber(max) || 0;
+      }
+    }
+    if (min > max) {
+      var temp = min;
+      min = max;
+      max = temp;
     }
     if (floating || min % 1 || max % 1) {
       var rand = nativeRandom();

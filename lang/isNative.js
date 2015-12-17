@@ -1,20 +1,23 @@
-define(['./isFunction', '../internal/isObjectLike'], function(isFunction, isObjectLike) {
+define(['./isFunction', '../internal/isHostObject', './isObjectLike'], function(isFunction, isHostObject, isObjectLike) {
+
+  /** Used to match `RegExp` [syntax characters](http://ecma-international.org/ecma-262/6.0/#sec-patterns). */
+  var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
 
   /** Used to detect host constructors (Safari > 5). */
   var reIsHostCtor = /^\[object .+?Constructor\]$/;
 
-  /** Used for native method references. */
+  /** Used for built-in method references. */
   var objectProto = Object.prototype;
 
   /** Used to resolve the decompiled source of functions. */
-  var fnToString = Function.prototype.toString;
+  var funcToString = Function.prototype.toString;
 
   /** Used to check objects for own properties. */
   var hasOwnProperty = objectProto.hasOwnProperty;
 
   /** Used to detect if a method is native. */
   var reIsNative = RegExp('^' +
-    fnToString.call(hasOwnProperty).replace(/[\\^$.*+?()[\]{}|]/g, '\\$&')
+    funcToString.call(hasOwnProperty).replace(reRegExpChar, '\\$&')
     .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
   );
 
@@ -39,9 +42,10 @@ define(['./isFunction', '../internal/isObjectLike'], function(isFunction, isObje
       return false;
     }
     if (isFunction(value)) {
-      return reIsNative.test(fnToString.call(value));
+      return reIsNative.test(funcToString.call(value));
     }
-    return isObjectLike(value) && reIsHostCtor.test(value);
+    return isObjectLike(value) &&
+      (isHostObject(value) ? reIsNative : reIsHostCtor).test(value);
   }
 
   return isNative;

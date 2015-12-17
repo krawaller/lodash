@@ -1,16 +1,16 @@
-define(['../internal/isObjectLike'], function(isObjectLike) {
+define(['./isObjectLike'], function(isObjectLike) {
 
   /** `Object#toString` result references. */
   var numberTag = '[object Number]';
 
-  /** Used for native method references. */
+  /** Used for built-in method references. */
   var objectProto = Object.prototype;
 
   /**
    * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
    * of values.
    */
-  var objToString = objectProto.toString;
+  var objectToString = objectProto.toString;
 
   /**
    * Checks if `value` is classified as a `Number` primitive or object.
@@ -25,17 +25,21 @@ define(['../internal/isObjectLike'], function(isObjectLike) {
    * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
    * @example
    *
-   * _.isNumber(8.4);
+   * _.isNumber(3);
    * // => true
    *
-   * _.isNumber(NaN);
+   * _.isNumber(Number.MIN_VALUE);
    * // => true
    *
-   * _.isNumber('8.4');
+   * _.isNumber(Infinity);
+   * // => true
+   *
+   * _.isNumber('3');
    * // => false
    */
   function isNumber(value) {
-    return typeof value == 'number' || (isObjectLike(value) && objToString.call(value) == numberTag);
+    return typeof value == 'number' ||
+      (isObjectLike(value) && objectToString.call(value) == numberTag);
   }
 
   return isNumber;

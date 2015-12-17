@@ -1,16 +1,16 @@
-define(['../internal/isObjectLike'], function(isObjectLike) {
+define(['./isObjectLike'], function(isObjectLike) {
 
   /** `Object#toString` result references. */
   var errorTag = '[object Error]';
 
-  /** Used for native method references. */
+  /** Used for built-in method references. */
   var objectProto = Object.prototype;
 
   /**
    * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
    * of values.
    */
-  var objToString = objectProto.toString;
+  var objectToString = objectProto.toString;
 
   /**
    * Checks if `value` is an `Error`, `EvalError`, `RangeError`, `ReferenceError`,
@@ -30,7 +30,8 @@ define(['../internal/isObjectLike'], function(isObjectLike) {
    * // => false
    */
   function isError(value) {
-    return isObjectLike(value) && typeof value.message == 'string' && objToString.call(value) == errorTag;
+    return isObjectLike(value) &&
+      typeof value.message == 'string' && objectToString.call(value) == errorTag;
   }
 
   return isError;

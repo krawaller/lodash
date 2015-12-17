@@ -1,4 +1,14 @@
-define(['../internal/arrayCopy', '../internal/getLength', '../internal/isLength', '../object/values'], function(arrayCopy, getLength, isLength, values) {
+define(['../internal/Symbol', '../internal/copyArray', '../internal/getTag', './isArrayLike', './isString', '../internal/iteratorToArray', '../internal/mapToArray', '../internal/setToArray', '../internal/stringToArray', '../object/values'], function(Symbol, copyArray, getTag, isArrayLike, isString, iteratorToArray, mapToArray, setToArray, stringToArray, values) {
+
+  /** Used as a safe reference for `undefined` in pre-ES5 environments. */
+  var undefined;
+
+  /** `Object#toString` result references. */
+  var mapTag = '[object Map]',
+      setTag = '[object Set]';
+
+  /** Built-in value references. */
+  var iteratorSymbol = typeof (iteratorSymbol = Symbol && Symbol.iterator) == 'symbol' ? iteratorSymbol : undefined;
 
   /**
    * Converts `value` to an array.
@@ -16,14 +26,19 @@ define(['../internal/arrayCopy', '../internal/getLength', '../internal/isLength'
    * // => [2, 3]
    */
   function toArray(value) {
-    var length = value ? getLength(value) : 0;
-    if (!isLength(length)) {
-      return values(value);
-    }
-    if (!length) {
+    if (!value) {
       return [];
     }
-    return arrayCopy(value);
+    if (isArrayLike(value)) {
+      return isString(value) ? stringToArray(value) : copyArray(value);
+    }
+    if (iteratorSymbol && value[iteratorSymbol]) {
+      return iteratorToArray(value[iteratorSymbol]());
+    }
+    var tag = getTag(value),
+        func = tag == mapTag ? mapToArray : (tag == setTag ? setToArray : values);
+
+    return func(value);
   }
 
   return toArray;
